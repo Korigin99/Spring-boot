@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>emp list page</title>
+<style type="text/css">
+body {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+table {
+	font-family: arial, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+td, th {
+	border: 1px solid #dddddd;
+	text-align: left;
+	padding: 8px;
+	text-align: center;
+}
+
+tr:nth-child(even) {
+	background-color: #dddddd;
+}
+
+#result {
+	margin: 30px auto;
+	width: 1200px;
+	text-align: center;
+}
+</style>
+</head>
+<body>
+
+	<h3>사원 목록</h3>
+
+	<h4>사원 상세 조회</h4>
+	<input id="ename" type="text" disabled="disabled" placeholder="사원 이름">
+	<input id="comm" type="text" disabled="disabled" placeholder="사원 보너스">
+	<input id="sal" type="text" disabled="disabled" placeholder="사원 급여">
+
+	<h4>사원 추가</h4>
+	<input id="a_empno" type="text" placeholder="사원 번호">
+	<input id="a_ename" type="text" placeholder="사원 이름">
+	<input id="a_job" type="text" placeholder="사원 직책">
+	<input id="a_sal" type="text" placeholder="사원 급여">
+	<input id="a_hiredate" type="text" placeholder="입사 날짜">
+	<input id="a_deptno" type="text" placeholder="부서 번호">
+	<button type="button" onclick="doAdd()">사원 추가</button>
+	<h4>사원 수정</h4>
+	<input id="m_empno" type="text" placeholder="사원 번호">
+	<input id="m_ename" type="text" placeholder="수정 : 사원 이름">
+	<input id="m_job" type="text" placeholder="수정 : 사원 직책">
+	<input id="m_sal" type="text" placeholder="수정 : 사원 급여">
+	<button type="button" onclick="doModify()">사원 수정</button>
+	<h4>사원 삭제</h4>
+	<input id="d_empno" type="text" placeholder="사원 번호">
+	<button type="button" onclick="doDelete()">사원 삭제</button>
+
+	<div id=result></div>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.1.js"
+	integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+	crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+	function doModify(){
+		var empno = $('#m_empno').val();
+		var ename = $('#m_ename').val();
+		var job = $('#m_job').val();
+		var sal = $('#m_sal').val();
+
+		
+		var json = {
+				"empno" : empno,
+				"ename" : ename,
+				"job" : job,
+				"sal" : sal,
+		};
+		
+		$.ajax({
+			url : 'api/v1/emp',
+			type : 'PATCH',
+			contentType : 'application/json',
+			data : JSON.stringify(json),
+			dataType : 'json',
+			success : function(response){
+				alert("수정 완료");
+				location.reload();
+			}
+		});
+	}
+
+	function doDelete() {
+		var empno = $('#d_empno').val();
+		$.ajax({
+			url : '/api/v1/emp/' + empno,
+			type : 'DELETE',
+			dataType : 'json',
+			success : function(response) {
+				console.log(response);
+				alert('사원 삭제 완료');
+				location.reload();
+			}
+		});
+	}
+
+	function doAdd() {
+		var empno = $('#a_empno').val();
+		var ename = $('#a_ename').val();
+		var job = $('#a_job').val();
+		var sal = $('#a_sal').val();
+		var hiredate = $('#a_hiredate').val();
+		var deptno = $('#a_deptno').val();
+
+		var json = {
+			"empno" : empno,
+			"ename" : ename,
+			"job" : job,
+			"sal" : sal,
+			"hiredate" : hiredate,
+			"deptno" : deptno
+		};
+
+		$.ajax({
+			url : '/api/v1/emp/join',
+			type : 'POST',
+			contentType : 'application/json',
+			data : JSON.stringify(json),
+			dataType : 'json',
+			success : function(response) {
+				console.log(response);
+				alert('사원 추가 완료!');
+				location.reload();
+			}
+
+		});
+
+	}
+
+	callEmp();
+	function callEmp() {
+		var table = "<table>";
+		$.ajax({
+			url : '/api/v1/emp',
+			type : 'get',
+			contentType : 'application/json',
+			dataType : 'json',
+			success : function(response) {
+				console.log(response);
+				for (var i = 0; i < response.length; i++) {
+					table += "<tr onclick='getEmp(" + response[i].empno
+							+ ")'><td>" + response[i].empno + "</td><td>"
+							+ response[i].ename + "</td><td>" + response[i].job
+							+ "</td><td>" + response[i].sal + "</td><td>"
+							+ response[i].hiredate + "</td><td>"
+							+ response[i].dname + "</td><td>" + response[i].loc
+							+ "</td></tr>";
+				}
+				table += "</table>";
+				$("#result").append(table);
+			}
+		});
+	}
+
+	function getEmp(empno) {
+		console.log("getEemp Click")
+		$.ajax({
+			url : '/api/v1/emp/' + empno,
+			type : 'GET',
+			dataType : 'json',
+			success : function(response) {
+				console.log(response)
+				$("#ename").val(response.ename);
+				$("#comm").val(response.comm);
+				$("#sal").val(response.sal);
+			}
+		});
+	}
+</script>
+</html>

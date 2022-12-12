@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DW 게시판</title>
+<style type="text/css">
+#container {
+	width: 1200px;
+	height: auto;
+	margin: 0 auto;
+	text-align: center;
+}
+
+button {
+	float: right;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+table {
+	font-family: arial, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+td, th {
+	border: 1px solid #dddddd;
+	text-align: left;
+	padding: 8px;
+	text-align: center;
+}
+
+tr:nth-child(even) {
+	background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+	<div id="container">
+		<h1>DW 게시판</h1>
+		<button type="button">게시물 작성</button>
+		<div>
+			<table border=1 id=board>
+				<tr>
+					<th>게시판 번호</th>
+					<th>게시판 제목</th>
+					<th>작성자</th>
+					<th>작성 날짜</th>
+					<th>조회수</th>
+				</tr>
+				
+			</table>
+		</div>
+	</div>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.1.js"
+	integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+	crossorigin="anonymous"></script>
+<script type="text/javascript">
+	
+	window.onload = function(){
+		table = "";
+			$.ajax({
+				url : '/api/v1/board',
+				type : 'get',
+				contentType : 'application/json',
+				dataType : 'json',
+				success : function(response) {
+					console.log(response);
+					for (var i = 0; i < response.length; i++) {
+						table += "<tr><td>" + response[i].board_no + "</td><td><a href='#'>"
+								+ response[i].title + "</a></td><td>" 
+								+ response[i].writer + "</td><td>"
+								+ response[i].create_at + "</td><td>"
+								+ response[i].board_count + "</td></tr>";
+					}
+					$("#board").append(table);
+				}
+			});
+	}
+
+</script>
+</html>
